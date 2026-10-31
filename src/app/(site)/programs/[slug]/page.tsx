@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { CATALOG, getProduct } from "@/lib/catalog";
 import { AddToCartButton } from "@/components/site/AddToCartButton";
+import { formatMoney } from "@/lib/utils";
 
 import { INJURY_NOTE } from "@/lib/catalog";
 
@@ -92,11 +93,11 @@ export default async function ProductDetailPage({
 
             <div className="flex items-baseline gap-3 mt-6">
               <span className="font-display font-bold text-4xl text-bone">
-                LE {product.price}
+                {formatMoney(product.price)}
               </span>
               {product.compareAtPrice && (
                 <span className="text-xl text-wgray-dim line-through">
-                  LE {product.compareAtPrice}
+                  {formatMoney(product.compareAtPrice)}
                 </span>
               )}
             </div>

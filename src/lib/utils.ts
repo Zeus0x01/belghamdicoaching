@@ -21,6 +21,9 @@ export function uuid(): string {
 }
 
 export function formatMoney(amount: number, currency = "EGP"): string {
+  if (currency === "EGP") {
+    return `LE ${amount.toLocaleString("en-US", { maximumFractionDigits: 0 })}`;
+  }
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,

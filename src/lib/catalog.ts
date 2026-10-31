@@ -294,6 +294,7 @@ export const BUSINESS = {
   coachArabic: "بسام الغامدي",
   location: "Cairo, Egypt",
   website: "https://belghamdicoaching.com",
+  email: "coach@belghamdicoaching.com",
   whatsapp: "+201028796338",
   whatsappLink: "https://wa.me/201028796338",
   logo: "https://belghamdicoaching.com/cdn/shop/files/logi.png?v=1750603230&width=600",

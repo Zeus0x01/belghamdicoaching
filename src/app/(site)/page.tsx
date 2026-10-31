@@ -21,7 +21,7 @@ export default function HomePage() {
   }, [setSeed]);
 
   const featured = CATALOG.filter((p) =>
-    ["ppl-hypertrophy-6", "muscle-mommies-full-transformation", "upper-lower-power"].includes(p.slug)
+    ["anterior-x-posterior", "push-pull-leg-x-upper-lower", "upper-lower-4-days"].includes(p.slug)
   );
 
   return (

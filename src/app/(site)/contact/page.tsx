@@ -39,7 +39,7 @@ export default function ContactPage() {
               <Mail className="h-5 w-5 text-copper mt-1" />
               <div>
                 <p className="font-display font-semibold text-bone text-sm uppercase tracking-widest">Email</p>
-                <p className="text-wgray text-sm mt-1">coach@belghamdicoaching.com</p>
+                <p className="text-wgray text-sm mt-1">{BUSINESS.email}</p>
               </div>
             </div>
 

@@ -7,6 +7,7 @@ import { cartProducts, useCart, cartTotal } from "@/lib/cart";
 import { logEvent } from "@/lib/integrations/dispatcher";
 import { useAdminStore } from "@/lib/demo/admin-store";
 import { motion } from "framer-motion";
+import { formatMoney } from "@/lib/utils";
 
 export default function CheckoutPage() {
   const items = useCart((s) => s.items);
@@ -121,7 +122,7 @@ export default function CheckoutPage() {
             </div>
 
             <button type="submit" className="btn-primary w-full">
-              Simulate Purchase — LE {total}
+              Simulate Purchase — {formatMoney(total)}
             </button>
           </form>
         </div>
@@ -136,12 +137,12 @@ export default function CheckoutPage() {
                 <span className="text-bone">
                   {product.title} <span className="text-wgray">× {quantity}</span>
                 </span>
-                <span className="font-display">LE {product.price * quantity}</span>
+                <span className="font-display">{formatMoney(product.price * quantity)}</span>
               </div>
             ))}
             <div className="border-t border-wgray-dim/60 pt-4 flex justify-between font-display font-bold text-lg">
               <span>Total</span>
-              <span className="text-copper">LE {total}</span>
+              <span className="text-copper">{formatMoney(total)}</span>
             </div>
           </div>
           <p className="text-[11px] text-wgray-dim mt-6 leading-relaxed">
