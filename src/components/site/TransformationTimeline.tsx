@@ -5,9 +5,12 @@ import { motion } from "framer-motion";
 import { Clock3 } from "lucide-react";
 import type { Transformation } from "@/lib/types";
 import { Reveal } from "@/components/ui/Reveal";
+import { useI18n } from "@/lib/i18n";
 
 function TransformationCard({ tr, index }: { tr: Transformation; index: number }) {
   const [open, setOpen] = useState(true);
+  const { t } = useI18n();
+  const weeksLabel = t("timeline_weeks_journey").replace("{weeks}", String(tr.weeks));
   return (
     <Reveal delay={index * 0.1} className="card-surface">
       <div className="p-8 lg:p-10">
@@ -15,19 +18,19 @@ function TransformationCard({ tr, index }: { tr: Transformation; index: number }
           <div>
             {tr.demo && (
               <span className="inline-block mb-3 text-[10px] font-display uppercase tracking-widest text-wgray border border-wgray-dim px-2 py-1">
-                Demo Content — replace with real client story
+                {t("demo_content_note")}
               </span>
             )}
             <h3 className="font-display font-semibold text-2xl text-bone">{tr.clientLabel}</h3>
             <p className="flex items-center gap-2 text-sm text-wgray mt-1">
-              <Clock3 className="h-4 w-4 text-copper" /> {tr.weeks}-week journey
+              <Clock3 className="h-4 w-4 text-copper" /> {weeksLabel}
             </p>
           </div>
           <button
             onClick={() => setOpen(!open)}
             className="text-xs font-display uppercase tracking-widest text-copper hover:text-bone transition-colors"
           >
-            {open ? "Collapse" : "Expand"}
+            {open ? t("timeline_collapse") : t("timeline_expand")}
           </button>
         </div>
 
@@ -46,7 +49,7 @@ function TransformationCard({ tr, index }: { tr: Transformation; index: number }
               >
                 <span className="absolute -left-[7px] top-1 w-3.5 h-3.5 rounded-full bg-copper border-4 border-obsidian" />
                 <p className="text-xs font-display uppercase tracking-[0.25em] text-copper">
-                  Week {stage.week}
+                  {t("timeline_week_label").replace("{week}", String(stage.week))}
                 </p>
                 <p className="font-display font-semibold text-lg text-bone mt-1">{stage.title}</p>
                 <p className="text-sm text-wgray mt-1 leading-relaxed max-w-md">{stage.detail}</p>
