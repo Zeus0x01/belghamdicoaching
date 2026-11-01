@@ -38,7 +38,7 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-r from-copper to-amber bg-[length:200%_100%] text-graphite font-display font-semibold uppercase tracking-widest text-sm px-8 py-4 transition-all duration-300 ease-cinematic hover:bg-right hover:bg-bone hover:-translate-y-0.5;
+    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-r from-copper to-amber bg-[length:200%_100%] text-graphite font-display font-semibold uppercase tracking-widest text-sm px-8 py-4 transition-all duration-300 ease-cinematic hover:bg-right hover:-translate-y-0.5;
   }
 
   .btn-secondary {
