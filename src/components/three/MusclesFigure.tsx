@@ -13,18 +13,22 @@ const MUSCLE_IDS = MUSCLE_GROUPS.map((g) => g.id);
 /* Global visibility factor (written by the persistent scroll canvas). */
 export const glowFade = { value: 1 };
 
-/* Region centers in model space (1.79 m figure, feet at y = 0).
-   X is mirrored: regions are defined on the +x side and compared
-   against |v.x|. Index matches MUSCLE_IDS order. */
-const GROUP_REGIONS = [
-  { x: 0, y: 1.42, z: 0.09, sigma: 0.2 },
-  { x: 0.25, y: 1.43, z: 0, sigma: 0.16 },
-  { x: 0, y: 1.18, z: 0.07, sigma: 0.18 },
-  { x: 0, y: 1.22, z: -0.09, sigma: 0.2 },
-  { x: 0.3, y: 1.27, z: 0.01, sigma: 0.15 },
-  { x: 0.325, y: 0.98, z: 0.01, sigma: 0.15 },
-  { x: 0.1, y: 0.7, z: 0.02, sigma: 0.17 },
-  { x: 0.105, y: 0.33, z: -0.02, sigma: 0.17 },
+/* Deterministic body-part bands in model space (1.8 m figure, feet at y = 0).
+   First matching band wins; index matches MUSCLE_IDS order. Bands measured
+   against the actual model proportions (shoulder caps y≈1.30–1.50, pecs
+   y≈1.18–1.40, abs y≈0.98–1.18, thighs y≈0.42–0.90, calves y≈0.12–0.42). */
+const BODY_BANDS: {
+  id: number;
+  test: (x: number, y: number, z: number, ax: number) => boolean;
+}[] = [
+  { id: 1, test: (_x, y, _z, ax) => ax > 0.18 && y > 1.32 && y < 1.5 },
+  { id: 4, test: (x, y, _z, ax) => ax > 0.24 && y >= 1.06 && y <= 1.32 && Math.abs(x) < 0.36 },
+  { id: 5, test: (x, y, _z, ax) => ax > 0.24 && y >= 0.8 && y < 1.06 && Math.abs(x) < 0.4 },
+  { id: 3, test: (_x, y, z) => z < -0.045 && y >= 1.02 && y <= 1.52 },
+  { id: 0, test: (_x, y, z, ax) => y >= 1.24 && y <= 1.38 && ax < 0.17 && z > 0.03 },
+  { id: 2, test: (x, y, z, ax) => y >= 0.98 && y < 1.24 && ax < 0.17 && z >= -0.02 },
+  { id: 6, test: (x, y, z, ax) => y >= 0.42 && y < 0.9 && ax < 0.2 && z > -0.03 },
+  { id: 7, test: (x, y, z, ax) => y >= 0.12 && y < 0.42 && ax < 0.17 },
 ];
 
 /* Yaw the figure turns toward when a group is focused. */
@@ -39,32 +43,72 @@ export const GROUP_YAW: Record<MuscleGroupId, number> = {
   calves: 0,
 };
 
+function bandFor(x: number, y: number, z: number, ax: number): number {
+  for (const band of BODY_BANDS) {
+    if (band.test(x, y, z, ax)) return band.id;
+  }
+  return -1;
+}
+
+/* Tag per-triangle with majority vote per vertex: pass 1 tags every face by
+   its centroid (kills UV-seam streaks from stacked duplicated vertices),
+   pass 2 resolves each shared vertex to the majority of its adjacent faces'
+   tags so a later face can't overwrite a boundary vertex (last-writer
+   fringes). Groups win ties over -1 so seams don't flicker untagged. */
 function tagMuscleGroups(scene: THREE.Group) {
+  const N_GROUPS = MUSCLE_IDS.length + 1; // ids 0..7 + untagged(-1)
   scene.updateMatrixWorld(true);
-  const v = new THREE.Vector3();
+  const a = new THREE.Vector3();
+  const b = new THREE.Vector3();
+  const c = new THREE.Vector3();
   scene.traverse((obj) => {
     const mesh = obj as THREE.Mesh;
     if (!mesh.isMesh) return;
     const geometry = mesh.geometry as THREE.BufferGeometry;
     const posAttr = geometry.getAttribute("position");
     if (!posAttr) return;
-    const tags = new Float32Array(posAttr.count);
-    for (let i = 0; i < posAttr.count; i++) {
-      v.fromBufferAttribute(posAttr, i).applyMatrix4(mesh.matrixWorld);
-      let best = -1;
-      let bestW = 0.1;
-      for (let r = 0; r < GROUP_REGIONS.length; r++) {
-        const reg = GROUP_REGIONS[r];
-        const dx = Math.abs(v.x) - reg.x;
-        const dy = v.y - reg.y;
-        const dz = v.z - reg.z;
-        const w = Math.exp(-(dx * dx + dy * dy + dz * dz) / (2 * reg.sigma * reg.sigma));
-        if (w > bestW) {
-          bestW = w;
-          best = r;
+    const nVerts = posAttr.count;
+    const votes = new Uint32Array(nVerts * N_GROUPS);
+    const cast = (i: number, id: number) => {
+      votes[i * N_GROUPS + (id < 0 ? 0 : id + 1)]++;
+    };
+    const index = geometry.getIndex();
+    if (index) {
+      const ia = index;
+      for (let t = 0; t < ia.count; t += 3) {
+        const i0 = ia.getX(t);
+        const i1 = ia.getX(t + 1);
+        const i2 = ia.getX(t + 2);
+        a.fromBufferAttribute(posAttr, i0).applyMatrix4(mesh.matrixWorld);
+        b.fromBufferAttribute(posAttr, i1).applyMatrix4(mesh.matrixWorld);
+        c.fromBufferAttribute(posAttr, i2).applyMatrix4(mesh.matrixWorld);
+        const cx = (a.x + b.x + c.x) / 3;
+        const cy = (a.y + b.y + c.y) / 3;
+        const cz = (a.z + b.z + c.z) / 3;
+        const id = bandFor(cx, cy, cz, Math.abs(cx));
+        cast(i0, id);
+        cast(i1, id);
+        cast(i2, id);
+      }
+    } else {
+      for (let i = 0; i < nVerts; i++) {
+        a.fromBufferAttribute(posAttr, i).applyMatrix4(mesh.matrixWorld);
+        cast(i, bandFor(a.x, a.y, a.z, Math.abs(a.x)));
+      }
+    }
+    const tags = new Float32Array(nVerts);
+    for (let i = 0; i < nVerts; i++) {
+      let bestId = -1;
+      let bestCount = 0;
+      for (let g = 0; g < N_GROUPS; g++) {
+        const n = votes[i * N_GROUPS + g];
+        const candidate = g === 0 ? -1 : g - 1;
+        if (n > bestCount || (n === bestCount && n > 0 && bestId < 0 && candidate >= 0)) {
+          bestCount = n;
+          bestId = candidate;
         }
       }
-      tags[i] = best;
+      tags[i] = bestId;
     }
     geometry.setAttribute("aGroup", new THREE.BufferAttribute(tags, 1));
   });

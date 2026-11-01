@@ -34,10 +34,13 @@ function Rig({ children }: { children: ReactNode }) {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const scroll = window.scrollY;
-    const heroPhase = scroll < vh * 0.55;
+    const heroPhase = scroll < vh * 0.45;
     const box = document.getElementById("muscle-explorer");
     const rect = box ? box.getBoundingClientRect() : null;
-    const inBox = !!rect && rect.top < vh * 0.9 && rect.bottom > vh * 0.08;
+    const inBox =
+      !!rect &&
+      rect.top < vh * 0.45 &&
+      rect.bottom > vh * 0.72;
 
     let fadeT = 0;
     let name: "hero" | "explorer" | null = null;
