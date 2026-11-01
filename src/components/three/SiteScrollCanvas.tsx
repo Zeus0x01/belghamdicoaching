@@ -58,8 +58,8 @@ function Rig({ children }: { children: ReactNode }) {
     const scroll = window.scrollY;
     // The figure belongs to #hero-figure (glued, with a light scroll drift)
     // or to #muscle-explorer (tracked so it always stays inside the box).
-    const slot = document.getElementById("hero-figure");
-    const srect = slot ? slot.getBoundingClientRect() : null;
+    const slotEl = document.getElementById("hero-figure");
+    const srect = slotEl ? slotEl.getBoundingClientRect() : null;
     const heroIn =
       !!srect && srect.bottom > vh * 0.35 && srect.top < vh * 0.55;
     const box = document.getElementById("muscle-explorer");
@@ -91,21 +91,27 @@ function Rig({ children }: { children: ReactNode }) {
       // Tracked dock: the figure is anchored to the box each frame, so it
       // stays inside the box while it scrolls and never hangs over content.
       ({ tx, ty, scaleT } = anchorTarget(rect, camera, vw, vh));
+    } else if (lastTarget.current) {
+      // Fade-out glue: while fading away, keep following the last zone's
+      // anchor so the figure scrolls off WITH its section instead of
+      // freezing on screen over unrelated content.
+      const prev = lastTarget.current;
+      const prevEl =
+        prev === "hero" ? slotEl : document.getElementById("muscle-explorer");
+      const prevRect = prevEl ? prevEl.getBoundingClientRect() : null;
+      if (prevRect) {
+        ({ tx, ty, scaleT } = anchorTarget(prevRect, camera, vw, vh));
+        if (prev === "hero") ty += Math.min(scroll * 0.00045, 0.4);
+      }
     }
 
     const g = poseRef.current;
     if (g) {
-      // Snap to the new anchor on any zone change so the figure never slides
-      // across the page between the hero and the explorer.
-      if (name && name !== lastTarget.current) {
-        g.position.set(tx, ty, 0);
-        g.scale.setScalar(scaleT);
-      }
-      // Tight tracking keeps the figure glued to its section.
-      const k = 10;
-      g.position.x = THREE.MathUtils.damp(g.position.x, tx, k, delta);
-      g.position.y = THREE.MathUtils.damp(g.position.y, ty, k, delta);
-      g.scale.setScalar(THREE.MathUtils.damp(g.scale.x, scaleT, k, delta));
+      // Hard-glue: assign the projected anchor directly every frame so the
+      // figure never trails its section while scrolling (damping lags behind
+      // fast scroll targets and reads as the figure "moving on its own").
+      g.position.set(tx, ty, 0);
+      g.scale.setScalar(scaleT);
       g.visible = op.current > 0.01;
     }
     lastTarget.current = name;
