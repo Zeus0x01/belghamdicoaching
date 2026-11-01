@@ -32,22 +32,32 @@ function anchorTarget(
 
 function Rig({ children }: { children: ReactNode }) {
   const poseRef = useRef<THREE.Group>(null);
+  const tiltRef = useRef<THREE.Group>(null);
   const matsRef = useRef<THREE.Material[]>([]);
+  const mouse = useRef({ x: 0, y: 0 });
   const op = useRef(0);
   const lastTarget = useRef<"hero" | "explorer" | null>(null);
-  const dockAnchor = useRef<{ tx: number; ty: number; scaleT: number } | null>(null);
   const { scene, camera } = useThree();
 
   useEffect(() => {
     camera.lookAt(AIM);
   }, [camera]);
 
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("mousemove", onMove, { passive: true });
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
   useFrame((_, delta) => {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const scroll = window.scrollY;
     // The figure belongs to #hero-figure (glued, with a light scroll drift)
-    // or to #muscle-explorer (docked and held fixed while the box is in view).
+    // or to #muscle-explorer (tracked so it always stays inside the box).
     const slot = document.getElementById("hero-figure");
     const srect = slot ? slot.getBoundingClientRect() : null;
     const heroIn =
@@ -55,12 +65,13 @@ function Rig({ children }: { children: ReactNode }) {
     const box = document.getElementById("muscle-explorer");
     const rect = box ? box.getBoundingClientRect() : null;
     const inBox =
-      !!rect && rect.top < vh * 0.3 && rect.bottom > vh * 0.5;
+      !!rect && rect.top < vh * 0.6 && rect.bottom > vh * 0.4;
 
     let fadeT = 0;
     let name: "hero" | "explorer" | null = null;
     let tx = poseRef.current?.position.x ?? 0;
     let ty = poseRef.current?.position.y ?? 0;
+    let tiltX = 0;
     let scaleT = 1;
 
     if (heroIn && srect) {
@@ -70,22 +81,17 @@ function Rig({ children }: { children: ReactNode }) {
       // A little scroll behaviour: the figure settles back slightly as the
       // hero scrolls away, so it reads as anchored rather than floating.
       ty += Math.min(scroll * 0.00045, 0.4);
+      // Mouse parallax moves the figure gently inside its slot.
+      tx += mouse.current.x * 0.12;
+      ty += mouse.current.y * 0.02;
+      tiltX = THREE.MathUtils.clamp(mouse.current.y * 0.08, -0.1, 0.1);
     } else if (inBox && rect) {
       name = "explorer";
       fadeT = 1;
-      // Docked: capture the anchor once on engagement, then hold it fixed —
-      // the figure does not ride up/down with the page while you scroll.
-      if (lastTarget.current !== "explorer" || !dockAnchor.current) {
-        ({ tx, ty, scaleT } = anchorTarget(rect, camera, vw, vh));
-        dockAnchor.current = { tx, ty, scaleT };
-      } else {
-        tx = dockAnchor.current.tx;
-        ty = dockAnchor.current.ty;
-        scaleT = dockAnchor.current.scaleT;
-      }
+      // Tracked dock: the figure is anchored to the box each frame, so it
+      // stays inside the box while it scrolls and never hangs over content.
+      ({ tx, ty, scaleT } = anchorTarget(rect, camera, vw, vh));
     }
-
-    if (name !== "explorer") dockAnchor.current = null;
 
     const g = poseRef.current;
     if (g) {
@@ -95,6 +101,7 @@ function Rig({ children }: { children: ReactNode }) {
         g.position.set(tx, ty, 0);
         g.scale.setScalar(scaleT);
       }
+      // Tight tracking keeps the figure glued to its section.
       const k = 10;
       g.position.x = THREE.MathUtils.damp(g.position.x, tx, k, delta);
       g.position.y = THREE.MathUtils.damp(g.position.y, ty, k, delta);
@@ -102,6 +109,9 @@ function Rig({ children }: { children: ReactNode }) {
       g.visible = op.current > 0.01;
     }
     lastTarget.current = name;
+
+    const tl = tiltRef.current;
+    if (tl) tl.rotation.x = THREE.MathUtils.damp(tl.rotation.x, tiltX, 3, delta);
 
     op.current = THREE.MathUtils.damp(op.current, fadeT, 6, delta);
     const fade = op.current;
@@ -132,7 +142,9 @@ function Rig({ children }: { children: ReactNode }) {
   });
 
   return (
-    <group ref={poseRef}>{children}</group>
+    <group ref={poseRef}>
+      <group ref={tiltRef}>{children}</group>
+    </group>
   );
 }
 
