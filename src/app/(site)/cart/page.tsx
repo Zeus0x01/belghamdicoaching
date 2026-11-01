@@ -18,14 +18,14 @@ export default function CartPage() {
     <div className="pt-32 pb-28">
       <div className="max-w-5xl mx-auto px-6 lg:px-10">
         <p className="eyebrow mb-4">{t("nav_cart")}</p>
-        <h1 className="heading-xl text-4xl md:text-6xl">Your selection.</h1>
+        <h1 className="heading-xl text-4xl md:text-6xl">{t("cart_title")}</h1>
 
         {lines.length === 0 ? (
           <div className="mt-20 text-center">
             <ShoppingBag className="h-10 w-10 text-wgray-dim mx-auto" />
-            <p className="text-wgray mt-6">Your cart is empty.</p>
+            <p className="text-wgray mt-6">{t("cart_empty")}</p>
             <Link href="/programs" className="btn-primary mt-8">
-              Browse Programs <ArrowRight className="h-4 w-4" />
+              {t("cart_browse_programs")} <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
         ) : (
@@ -56,7 +56,7 @@ export default function CartPage() {
                       <button
                         onClick={() => setQuantity(product.id, quantity - 1)}
                         className="p-1.5 border border-wgray-dim text-wgray hover:text-bone transition-colors"
-                        aria-label="Decrease quantity"
+                        aria-label={t("cart_qty_decrease")}
                       >
                         <Minus className="h-3.5 w-3.5" />
                       </button>
@@ -64,14 +64,14 @@ export default function CartPage() {
                       <button
                         onClick={() => setQuantity(product.id, quantity + 1)}
                         className="p-1.5 border border-wgray-dim text-wgray hover:text-bone transition-colors"
-                        aria-label="Increase quantity"
+                        aria-label={t("cart_qty_increase")}
                       >
                         <Plus className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => remove(product.id)}
                         className="p-1.5 text-wgray-dim hover:text-red-400 transition-colors ml-2"
-                        aria-label="Remove item"
+                        aria-label={t("cart_qty_remove")}
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -86,19 +86,19 @@ export default function CartPage() {
 
             <div className="card-surface p-8 h-fit">
               <h2 className="font-display font-semibold uppercase tracking-widest text-sm text-wgray">
-                Summary
+                {t("cart_summary_title")}
               </h2>
               <div className="mt-6 space-y-3 text-sm">
                 <div className="flex justify-between text-wgray">
-                  <span>Subtotal</span>
+                  <span>{t("cart_subtotal")}</span>
                   <span className="text-bone">LE {total}</span>
                 </div>
                 <div className="flex justify-between text-wgray">
-                  <span>Delivery</span>
-                  <span className="text-bone">Instant (digital)</span>
+                  <span>{t("cart_delivery")}</span>
+                  <span className="text-bone">{t("cart_delivery_value")}</span>
                 </div>
                 <div className="border-t border-wgray-dim/60 pt-3 flex justify-between font-display font-bold text-lg">
-                  <span>Total</span>
+                  <span>{t("cart_total")}</span>
                   <span className="text-copper">LE {total}</span>
                 </div>
               </div>
@@ -106,11 +106,10 @@ export default function CartPage() {
                 href="/checkout"
                 className="btn-primary w-full mt-8"
               >
-                Proceed to Checkout <ArrowRight className="h-4 w-4" />
+                {t("cart_checkout_cta")} <ArrowRight className="h-4 w-4" />
               </Link>
               <p className="text-[11px] text-wgray-dim mt-4 leading-relaxed">
-                Demo mode: checkout is simulated. Live mode will route through the Shopify
-                checkout.
+                {t("cart_demo_note")}
               </p>
             </div>
           </div>
