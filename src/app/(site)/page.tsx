@@ -9,12 +9,9 @@ import { AnatomyExplorer } from "@/components/three/AnatomyExplorer";
 import { Reveal, SectionHeading } from "@/components/ui/Reveal";
 import { Philosophy, HowItWorks, Testimonials, FinalCTA } from "@/components/site/HomeSections";
 import { TransformationTimeline } from "@/components/site/TransformationTimeline";
-import { CATALOG, COACHING_PACKAGES } from "@/lib/catalog";
+import { CATALOG } from "@/lib/catalog";
 import { useI18n } from "@/lib/i18n";
 import { useAdminStore } from "@/lib/demo/admin-store";
-
-const silver = COACHING_PACKAGES[0];
-const gold = COACHING_PACKAGES[1];
 
 export default function HomePage() {
   const { t } = useI18n();
@@ -95,26 +92,26 @@ export default function HomePage() {
                 </thead>
                 <tbody>
                   {[
-                    {
-                      key: "coaching_row_followup",
-                      silver: silver.followUp,
-                      gold: gold.followUp,
-                    },
-                    {
-                      key: "coaching_row_reporting",
-                      silver: silver.reporting,
-                      gold: gold.reporting,
-                    },
-                    {
-                      key: "coaching_row_response",
-                      silver: silver.responseTime,
-                      gold: gold.responseTime,
-                    },
-                    {
-                      key: "coaching_row_support",
-                      silver: silver.support,
-                      gold: gold.support,
-                    },
+                  {
+                    key: "coaching_row_followup",
+                    silver: t("coaching_val_followup"),
+                    gold: t("coaching_val_gold_followup"),
+                  },
+                  {
+                    key: "coaching_row_reporting",
+                    silver: t("coaching_val_reporting"),
+                    gold: t("coaching_val_gold_reporting"),
+                  },
+                  {
+                    key: "coaching_row_response",
+                    silver: t("coaching_val_response"),
+                    gold: t("coaching_val_gold_response"),
+                  },
+                  {
+                    key: "coaching_row_support",
+                    silver: t("coaching_val_support"),
+                    gold: t("coaching_val_gold_support"),
+                  },
                   ].map((r) => (
                     <tr key={r.key}>
                       <td className="table-cell font-medium">{t(r.key)}</td>

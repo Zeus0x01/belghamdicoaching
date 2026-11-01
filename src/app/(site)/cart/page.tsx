@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Minus, Plus, Trash2, ArrowRight, ShoppingBag } from "lucide-react";
 import { cartProducts, useCart, cartTotal } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
+import { formatMoney } from "@/lib/utils";
 
 export default function CartPage() {
   const items = useCart((s) => s.items);
@@ -78,7 +79,7 @@ export default function CartPage() {
                     </div>
                   </div>
                   <p className="font-display font-bold text-lg text-bone">
-                    LE {product.price * quantity}
+                    {formatMoney(product.price * quantity)}
                   </p>
                 </div>
               ))}
@@ -91,7 +92,7 @@ export default function CartPage() {
               <div className="mt-6 space-y-3 text-sm">
                 <div className="flex justify-between text-wgray">
                   <span>{t("cart_subtotal")}</span>
-                  <span className="text-bone">LE {total}</span>
+                  <span className="text-bone">{formatMoney(total)}</span>
                 </div>
                 <div className="flex justify-between text-wgray">
                   <span>{t("cart_delivery")}</span>
@@ -99,7 +100,7 @@ export default function CartPage() {
                 </div>
                 <div className="border-t border-wgray-dim/60 pt-3 flex justify-between font-display font-bold text-lg">
                   <span>{t("cart_total")}</span>
-                  <span className="text-copper">LE {total}</span>
+                  <span className="text-copper">{formatMoney(total)}</span>
                 </div>
               </div>
               <Link

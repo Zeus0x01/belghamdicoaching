@@ -31,10 +31,10 @@ export default function CoachingPage() {
   ];
 
   const rows = [
-    { id: "followup", label: t("coaching_row_followup"), silver: silver.followUp, gold: gold.followUp },
-    { id: "reporting", label: t("coaching_row_reporting"), silver: silver.reporting, gold: gold.reporting },
-    { id: "response", label: t("coaching_row_response"), silver: silver.responseTime, gold: gold.responseTime },
-    { id: "support", label: t("coaching_row_support"), silver: silver.support, gold: gold.support },
+    { id: "followup", label: t("coaching_row_followup"), silver: t("coaching_val_followup"), gold: t("coaching_val_gold_followup") },
+    { id: "reporting", label: t("coaching_row_reporting"), silver: t("coaching_val_reporting"), gold: t("coaching_val_gold_reporting") },
+    { id: "response", label: t("coaching_row_response"), silver: t("coaching_val_response"), gold: t("coaching_val_gold_response") },
+    { id: "support", label: t("coaching_row_support"), silver: t("coaching_val_support"), gold: t("coaching_val_gold_support") },
     { id: "personalized", label: t("coaching_row_personalized"), silver: t("coaching_val_yes"), gold: t("coaching_val_yes") },
     { id: "nutrition", label: t("coaching_row_nutrition"), silver: t("coaching_val_no"), gold: t("coaching_val_yes") },
     { id: "explanations", label: t("coaching_row_explanations"), silver: t("coaching_val_yes"), gold: t("coaching_val_yes") },
