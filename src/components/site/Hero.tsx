@@ -22,6 +22,11 @@ export function Hero() {
     <section ref={ref} className="relative min-h-screen flex items-center overflow-hidden">
       <div className="absolute inset-0">
         <Hero3D />
+        <div
+          id="hero-figure"
+          aria-hidden
+          className="absolute right-[3%] top-1/2 -translate-y-1/2 h-[84vh] w-[34vw] lg:right-[6%] lg:w-[22vw]"
+        />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10 w-full pointer-events-none">
