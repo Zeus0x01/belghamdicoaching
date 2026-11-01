@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { ArrowRight, Instagram, Youtube, Mail } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { BUSINESS } from "@/lib/catalog";
+import { logEvent } from "@/lib/integrations/dispatcher";
+
+const NEWSLETTER_KEY = "bc_newsletter";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const SOCIALS = [
   { label: "Instagram", href: BUSINESS.socials.instagram, Icon: Instagram },
@@ -47,6 +51,31 @@ export function Footer() {
   const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const value = email.trim();
+    if (!EMAIL_RE.test(value)) {
+      setError(true);
+      return;
+    }
+    let list: string[] = [];
+    try {
+      list = JSON.parse(window.localStorage.getItem(NEWSLETTER_KEY) ?? "[]") as string[];
+      if (!Array.isArray(list)) list = [];
+    } catch {
+      list = [];
+    }
+    if (!list.includes(value)) {
+      list.push(value);
+      window.localStorage.setItem(NEWSLETTER_KEY, JSON.stringify(list));
+    }
+    logEvent("lead.created", `newsletter:${value}`);
+    setError(false);
+    setEmail("");
+    setSubscribed(true);
+  };
 
   return (
     <footer className="bg-obsidian border-t border-wgray-dim/40 mt-0">
@@ -106,38 +135,39 @@ export function Footer() {
         </div>
 
         <div className="mt-14 pt-8 border-t border-wgray-dim/40 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (email) setSubscribed(true);
-            }}
-            className="flex items-center gap-3 max-w-md w-full"
-          >
+          <div className="max-w-md w-full">
             {subscribed ? (
               <p className="text-sm text-copper font-display uppercase tracking-widest">
-                You are on the list.
+                {t("newsletter_success")}
               </p>
             ) : (
               <>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email for training insights"
-                  className="input-dark flex-1"
-                  aria-label="Newsletter email"
-                />
-                <button
-                  type="submit"
-                  className="p-3 border border-wgray-dim text-wgray hover:text-copper hover:border-copper transition-colors"
-                  aria-label="Subscribe"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </button>
+                <form noValidate onSubmit={handleSubmit} className="flex items-center gap-3">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError(false);
+                    }}
+                    placeholder={t("newsletter_placeholder")}
+                    className="input-dark flex-1"
+                    aria-label={t("newsletter_email_label")}
+                  />
+                  <button
+                    type="submit"
+                    className="p-3 border border-wgray-dim text-wgray hover:text-copper hover:border-copper transition-colors"
+                    aria-label={t("newsletter_subscribe")}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </form>
+                {error && (
+                  <p className="text-xs text-copper mt-2">{t("newsletter_error")}</p>
+                )}
               </>
             )}
-          </form>
+          </div>
           <p className="text-xs text-wgray-dim">
             © {new Date().getFullYear()} Belghamdi Coaching — Bassam El Ghamdi. All rights reserved.
           </p>

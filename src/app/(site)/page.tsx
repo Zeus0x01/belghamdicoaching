@@ -9,11 +9,16 @@ import { AnatomyExplorer } from "@/components/three/AnatomyExplorer";
 import { Reveal, SectionHeading } from "@/components/ui/Reveal";
 import { Philosophy, HowItWorks, Testimonials, FinalCTA } from "@/components/site/HomeSections";
 import { TransformationTimeline } from "@/components/site/TransformationTimeline";
-import { CATALOG } from "@/lib/catalog";
+import { CATALOG, COACHING_PACKAGES } from "@/lib/catalog";
+import { useI18n } from "@/lib/i18n";
 import { useAdminStore } from "@/lib/demo/admin-store";
 
+const silver = COACHING_PACKAGES[0];
+const gold = COACHING_PACKAGES[1];
+
 export default function HomePage() {
-  const transformations = useAdminStore((s) => s.transformations).filter((t) => t.visible);
+  const { t } = useI18n();
+  const transformations = useAdminStore((s) => s.transformations).filter((tr) => tr.visible);
   const setSeed = useAdminStore((s) => s.setSeed);
 
   useEffect(() => {
@@ -77,6 +82,50 @@ export default function HomePage() {
                   priority responses.
                 </p>
               </Reveal>
+            </div>
+            <div className="mt-14 max-w-4xl overflow-x-auto">
+              <p className="text-xs font-display uppercase tracking-[0.3em] text-wgray mb-6">
+                {t("coaching_compare_title")}
+              </p>
+              <table className="w-full min-w-[560px]">
+                <thead>
+                  <tr>
+                    <th className="table-head">{t("coaching_table_feature")}</th>
+                    <th className="table-head">{t("coaching_tier_silver")}</th>
+                    <th className="table-head">{t("coaching_tier_gold")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    {
+                      key: "coaching_row_followup",
+                      silver: silver.followUp,
+                      gold: gold.followUp,
+                    },
+                    {
+                      key: "coaching_row_reporting",
+                      silver: silver.reporting,
+                      gold: gold.reporting,
+                    },
+                    {
+                      key: "coaching_row_response",
+                      silver: silver.responseTime,
+                      gold: gold.responseTime,
+                    },
+                    {
+                      key: "coaching_row_support",
+                      silver: silver.support,
+                      gold: gold.support,
+                    },
+                  ].map((r) => (
+                    <tr key={r.key}>
+                      <td className="table-cell font-medium">{t(r.key)}</td>
+                      <td className="table-cell text-wgray">{r.silver}</td>
+                      <td className="table-cell text-bone">{r.gold}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
             <div className="mt-10 flex gap-4">
               <Link href="/coaching" className="btn-primary">

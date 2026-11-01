@@ -31,6 +31,31 @@ const DICT: Record<string, { en: string; ar: string }> = {
     en: "Performance coaching built on science.",
     ar: "كوتشينج أداء مبني على العلم.",
   },
+  newsletter_placeholder: {
+    en: "Email for training insights",
+    ar: "بريدك الإلكتروني لنصائح التدريب",
+  },
+  newsletter_subscribe: { en: "Subscribe", ar: "اشترك" },
+  newsletter_email_label: {
+    en: "Newsletter email",
+    ar: "البريد الإلكتروني للنشرة",
+  },
+  newsletter_success: { en: "You are on the list.", ar: "تم إضافتك إلى القائمة." },
+  newsletter_error: {
+    en: "Please enter a valid email address.",
+    ar: "يرجى إدخال بريد إلكتروني صحيح.",
+  },
+  coaching_compare_title: { en: "Quick comparison", ar: "مقارنة سريعة" },
+  coaching_table_feature: { en: "Feature", ar: "الميزة" },
+  coaching_tier_silver: { en: "Silver", ar: "سيلفر" },
+  coaching_tier_gold: { en: "Gold", ar: "جولد" },
+  coaching_row_followup: {
+    en: "Follow-up frequency",
+    ar: "تكرار المتابعة",
+  },
+  coaching_row_reporting: { en: "Reporting", ar: "التقارير" },
+  coaching_row_response: { en: "Response time", ar: "زمن الرد" },
+  coaching_row_support: { en: "Support", ar: "الدعم" },
 };
 
 type I18nCtx = { lang: Lang; t: (k: keyof typeof DICT) => string; setLang: (l: Lang) => void };
