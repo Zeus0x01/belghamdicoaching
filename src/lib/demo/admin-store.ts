@@ -88,7 +88,39 @@ const initialTransformations: Transformation[] = [
   },
 ];
 
+export type ContentTab = "homepage" | "programs" | "coaching" | "faq";
+
+export interface ContentEdit {
+  title: string;
+  body: string;
+  visible: boolean;
+}
+
+const initialContentEdits: Record<ContentTab, ContentEdit> = {
+  homepage: {
+    title: "Build the strongest version of yourself",
+    body: "Elite programming and 1:1 coaching designed around your body, your schedule, and your goals.",
+    visible: true,
+  },
+  programs: {
+    title: "",
+    body: "Structured training programs built and refined by Coach Belghamdi — pick the split that matches your schedule and experience.",
+    visible: true,
+  },
+  coaching: {
+    title: "",
+    body: "Personal coaching with weekly check-ins, custom nutrition targets, and direct access to Coach Belghamdi.",
+    visible: true,
+  },
+  faq: {
+    title: "",
+    body: "Answers to the most common questions about programs, coaching, and delivery.",
+    visible: true,
+  },
+};
+
 interface AdminDataState {
+  contentEdits: Record<ContentTab, ContentEdit>;
   leads: Lead[];
   clients: Client[];
   orders: Order[];
@@ -129,6 +161,7 @@ interface AdminDataState {
   addNote: (note: { entityType: "lead" | "client"; entityId: string; note: string; author?: string }) => void;
   notesFor: (entityType: "lead" | "client", entityId: string) => InternalNote[];
   setCurrency: (c: "EGP" | "MAD" | "EUR" | "USD") => void;
+  saveContentTab: (tab: ContentTab, patch: Partial<ContentEdit>) => void;
   saveSettings: (patch: Partial<AdminDataState["settings"]>) => void;
   resetDemoData: () => void;
 }
@@ -136,6 +169,7 @@ interface AdminDataState {
 const SEED_VERSION = 1;
 
 const baseState = {
+  contentEdits: initialContentEdits,
   leads: initialLeads,
   clients: initialClients,
   orders: initialOrders,
@@ -232,6 +266,13 @@ export const useAdminStore = create<AdminDataState>()(
       notesFor: (entityType, entityId) =>
         get().notes.filter((n) => n.entityType === entityType && n.entityId === entityId),
       setCurrency: (c) => set({ currency: c }),
+      saveContentTab: (tab, patch) =>
+        set({
+          contentEdits: {
+            ...get().contentEdits,
+            [tab]: { ...get().contentEdits[tab], ...patch },
+          },
+        }),
       saveSettings: (patch) => set({ settings: { ...get().settings, ...patch } }),
       resetDemoData: () => {
         set({ ...baseState, settings: get().settings });

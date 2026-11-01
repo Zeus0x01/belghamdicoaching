@@ -1,11 +1,28 @@
 "use client";
 
 import { useState } from "react";
-import { EyeOff, Eye } from "lucide-react";
+import { EyeOff, Eye, Save } from "lucide-react";
 import { useAdminStore } from "@/lib/demo/admin-store";
+import type { ContentTab, ContentEdit } from "@/lib/demo/admin-store";
 import { logEvent } from "@/lib/integrations/dispatcher";
 
 const SECTIONS = ["Homepage", "Programs", "Coaching packages", "Testimonials", "Transformation gallery", "FAQ"] as const;
+
+type EditableTab = Extract<(typeof SECTIONS)[number], "Homepage" | "Programs" | "Coaching packages" | "FAQ">;
+
+const TAB_KEYS: Record<EditableTab, ContentTab> = {
+  Homepage: "homepage",
+  Programs: "programs",
+  "Coaching packages": "coaching",
+  FAQ: "faq",
+};
+
+const FIELD_LABELS: Record<EditableTab, { title: string; body: string }> = {
+  Homepage: { title: "Hero headline", body: "Hero subcopy" },
+  Programs: { title: "Section heading", body: "Intro blurb" },
+  "Coaching packages": { title: "Section heading", body: "Intro blurb" },
+  FAQ: { title: "Section heading", body: "Intro blurb" },
+};
 
 export default function AdminContentPage() {
   const { testimonials, updateTestimonial, transformations, updateTransformation } = useAdminStore();
@@ -93,23 +110,70 @@ export default function AdminContentPage() {
       )}
 
       {(section === "Homepage" || section === "Programs" || section === "Coaching packages" || section === "FAQ") && (
-        <div className="card-surface p-8 mt-8 max-w-2xl">
-          <h2 className="font-display font-semibold text-bone mb-2">{section}</h2>
-          <p className="text-sm text-wgray leading-relaxed">
-            This section is managed through structured content fields. Once the Supabase
-            connection is configured (content tables in the schema), text and imagery for{" "}
-            <span className="text-bone">{section.toLowerCase()}</span> can be updated here and
-            published instantly — no source code changes required.
-          </p>
-          <p className="text-xs text-wgray-dim mt-4">
-            Layout, ordering, and section visibility are art-directed in code on purpose — keeping
-            the design cohesive while content stays editable.
-          </p>
-          <p className="text-xs font-display uppercase tracking-widest text-wgray mt-6 border border-wgray-dim/60 px-4 py-3 inline-block">
-            Staging area — connect Supabase to enable direct text publishing
-          </p>
-        </div>
+        <SectionEditor key={section} section={section} />
       )}
+    </div>
+  );
+}
+
+function SectionEditor({ section }: { section: EditableTab }) {
+  const { contentEdits, saveContentTab } = useAdminStore();
+  const tab = TAB_KEYS[section];
+  const labels = FIELD_LABELS[section];
+  const stored = contentEdits[tab];
+  const [form, setForm] = useState<ContentEdit>(stored);
+  const [saved, setSaved] = useState(false);
+
+  return (
+    <div className="card-surface p-8 mt-8 max-w-2xl">
+      <div className="flex items-start justify-between gap-4">
+        <h2 className="font-display font-semibold text-bone">{section}</h2>
+        <button
+          onClick={() => saveContentTab(tab, { visible: !stored.visible })}
+          className="p-2 border border-wgray-dim text-wgray hover:text-bone shrink-0 transition-colors"
+          aria-label={stored.visible ? `Hide ${section.toLowerCase()} section` : `Show ${section.toLowerCase()} section`}
+        >
+          {stored.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        </button>
+      </div>
+
+      <div className="space-y-4 mt-6">
+        <div>
+          <label className="label-dark">{labels.title}</label>
+          <input
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            className="input-dark"
+          />
+        </div>
+        <div>
+          <label className="label-dark">{labels.body}</label>
+          <textarea
+            value={form.body}
+            onChange={(e) => setForm({ ...form, body: e.target.value })}
+            rows={4}
+            className="input-dark"
+          />
+        </div>
+        {saved && (
+          <p className="text-xs text-copper font-display uppercase tracking-widest">Saved</p>
+        )}
+        <button
+          onClick={() => {
+            saveContentTab(tab, { title: form.title, body: form.body });
+            setSaved(true);
+            window.setTimeout(() => setSaved(false), 2000);
+          }}
+          className="btn-primary"
+        >
+          <Save className="h-4 w-4" /> Save Changes
+        </button>
+      </div>
+
+      <p className="text-xs text-wgray-dim mt-6 leading-relaxed">
+        Demo mode — edits are stored locally and are not published to the public site. This is
+        demo plumbing until the live content connection is configured.
+      </p>
     </div>
   );
 }
