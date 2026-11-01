@@ -11,8 +11,10 @@ import {
   type SelectorAnswers,
 } from "@/lib/selector-rules";
 import type { Product } from "@/lib/catalog";
+import { useI18n } from "@/lib/i18n";
 
 export default function SelectorPage() {
+  const { t } = useI18n();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Partial<SelectorAnswers>>({});
   const [results, setResults] = useState<Product[] | null>(null);
@@ -47,10 +49,8 @@ export default function SelectorPage() {
   return (
     <div className="pt-32 pb-28">
       <div className="max-w-4xl mx-auto px-6 lg:px-10">
-        <p className="eyebrow mb-4">Program Selector</p>
-        <h1 className="heading-xl text-4xl md:text-6xl">
-          Five questions. Your next program.
-        </h1>
+        <p className="eyebrow mb-4">{t("selector_eyebrow")}</p>
+        <h1 className="heading-xl text-4xl md:text-6xl">{t("selector_title")}</h1>
 
         {results === null ? (
           <div className="mt-16">
@@ -72,7 +72,9 @@ export default function SelectorPage() {
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
               <p className="text-xs font-display uppercase tracking-[0.3em] text-wgray mb-3">
-                Question {step + 1} of {total}
+                {t("selector_question_step")
+                  .replace("{step}", String(step + 1))
+                  .replace("{total}", String(total))}
               </p>
               <h2 className="heading-lg text-3xl mb-8">{current.question}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -96,17 +98,14 @@ export default function SelectorPage() {
                 onClick={() => setStep(step - 1)}
                 className="mt-10 inline-flex items-center gap-2 text-sm text-wgray hover:text-bone transition-colors"
               >
-                <ArrowLeft className="h-4 w-4" /> Back
+                <ArrowLeft className="h-4 w-4" /> {t("selector_back")}
               </button>
             )}
           </div>
         ) : (
           <div className="mt-16">
-            <h2 className="heading-lg text-3xl mb-4">Your recommended programs</h2>
-            <p className="text-wgray text-sm max-w-xl mb-10">
-              These recommendations are informational and based on standard training principles.
-              Final training decisions should be reviewed with the coach.
-            </p>
+            <h2 className="heading-lg text-3xl mb-4">{t("selector_results_title")}</h2>
+            <p className="text-wgray text-sm max-w-xl mb-10">{t("selector_disclaimer")}</p>
             <div className="grid md:grid-cols-3 gap-6">
               {results.map((p, i) => (
                 <ProductCard key={p.id} product={p} index={i} />
@@ -114,10 +113,10 @@ export default function SelectorPage() {
             </div>
             <div className="flex flex-wrap gap-4 mt-12">
               <button onClick={reset} className="btn-secondary">
-                <RotateCcw className="h-4 w-4" /> Retake
+                <RotateCcw className="h-4 w-4" /> {t("selector_retake")}
               </button>
               <Link href="/coaching" className="btn-primary">
-                Explore Coaching <ArrowRight className="h-4 w-4" />
+                {t("selector_explore_coaching")} <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>

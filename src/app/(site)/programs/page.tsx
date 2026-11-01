@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { ProductCard } from "@/components/site/ProductCard";
 import { CATALOG, CATEGORIES, type ProductCategory } from "@/lib/catalog";
+import { useI18n } from "@/lib/i18n";
 
 type SortKey = "featured" | "price-asc" | "price-desc";
 
 export default function ProgramsPage() {
+  const { t } = useI18n();
   const [category, setCategory] = useState<ProductCategory | "All">("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortKey>("featured");
@@ -26,14 +28,11 @@ export default function ProgramsPage() {
   return (
     <div className="pt-32 pb-28">
       <div className="max-w-7xl mx-auto px-6 lg:px-10">
-        <p className="eyebrow mb-4">Programs</p>
+        <p className="eyebrow mb-4">{t("nav_programs")}</p>
         <h1 className="heading-xl text-5xl md:text-7xl max-w-3xl">
-          Pick your <span className="text-copper">battle plan.</span>
+          {t("programs_title")} <span className="text-copper">{t("programs_title_accent")}</span>
         </h1>
-        <p className="body-lg mt-5 max-w-2xl">
-          Every program is structured for progression. Filter by category, find your fit, and
-          start this week.
-        </p>
+        <p className="body-lg mt-5 max-w-2xl">{t("programs_copy")}</p>
 
         <div className="mt-12 flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2">
@@ -47,7 +46,7 @@ export default function ProgramsPage() {
                     : "border-wgray-dim text-wgray hover:text-bone hover:border-wgray"
                 }`}
               >
-                {c}
+                {c === "All" ? t("programs_filter_all") : c}
               </button>
             ))}
           </div>
@@ -57,28 +56,26 @@ export default function ProgramsPage() {
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search programs"
-                aria-label="Search programs"
+                placeholder={t("programs_search_placeholder")}
+                aria-label={t("programs_search_aria")}
                 className="input-dark pl-9 w-56"
               />
             </div>
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
-              aria-label="Sort programs"
+              aria-label={t("programs_sort_aria")}
               className="input-dark w-44"
             >
-              <option value="featured">Featured</option>
-              <option value="price-asc">Price: low to high</option>
-              <option value="price-desc">Price: high to low</option>
+              <option value="featured">{t("programs_sort_featured")}</option>
+              <option value="price-asc">{t("programs_sort_price_asc")}</option>
+              <option value="price-desc">{t("programs_sort_price_desc")}</option>
             </select>
           </div>
         </div>
 
         {filtered.length === 0 ? (
-          <p className="mt-20 text-center text-wgray">
-            No programs match your filters. Try clearing the search.
-          </p>
+          <p className="mt-20 text-center text-wgray">{t("programs_empty")}</p>
         ) : (
           <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((p, i) => (
