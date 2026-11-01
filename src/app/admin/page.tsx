@@ -77,6 +77,15 @@ export default function AdminOverviewPage() {
     return Array.from(map.entries()).map(([x, y]) => ({ x, y }));
   }, [subscriptions]);
 
+  const newClientsByMonth = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const c of clients) {
+      const key = new Date(c.createdAt).toLocaleDateString("en-US", { month: "short" });
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+    return Array.from(map.entries()).map(([x, y]) => ({ x, y }));
+  }, [clients]);
+
   return (
     <div className="p-6 lg:p-10 max-w-7xl mx-auto">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -129,6 +138,17 @@ export default function AdminOverviewPage() {
           ) : (
             <DonutChart data={subscriptionDist} label="Subscription distribution" />
           )}
+        </div>
+        <div className="card-surface p-6">
+          <h2 className="font-display font-semibold text-bone mb-4">New customers</h2>
+          {newClientsByMonth.length > 0 ? (
+            <div className="text-xs flex gap-2 mb-2 text-wgray-dim">
+              {newClientsByMonth.map((d) => (
+                <span key={d.x}>{d.x}</span>
+              ))}
+            </div>
+          ) : null}
+          <AreaChart data={newClientsByMonth} label="New customers" />
         </div>
       </div>
 
