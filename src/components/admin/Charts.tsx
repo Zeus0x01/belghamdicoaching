@@ -28,12 +28,12 @@ export function AreaChart({
     >
       <defs>
         <linearGradient id="ac-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#B97851" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="#B97851" stopOpacity="0" />
+          <stop offset="0%" stopColor="#E8793F" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#E8793F" stopOpacity="0" />
         </linearGradient>
       </defs>
       <path d={area} fill="url(#ac-fill)" />
-      <path d={line} fill="none" stroke="#B97851" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+      <path d={line} fill="none" stroke="#E8793F" strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
     </svg>
   );
 }
@@ -74,7 +74,7 @@ export function DonutChart({
 }) {
   const total = data.reduce((s, d) => s + d.y, 0);
   if (total === 0) return <EmptyChart label={label} />;
-  const colors = ["#B97851", "#77746E", "#4A4844", "#EAE6DD", "#8A5A3D"];
+  const colors = ["#E8793F", "#77746E", "#4A4844", "#EAE6DD", "#B45A26"];
   let offset = 25;
   return (
     <div className="flex items-center gap-8">

@@ -137,7 +137,7 @@ export default function SiteScrollCanvas() {
     >
       <ambientLight intensity={0.3} />
       <directionalLight position={[2.5, 3.5, 2.5]} intensity={2.2} color="#EAE6DD" />
-      <directionalLight position={[-3, 1.4, -2.5]} intensity={3} color="#B97851" />
+      <directionalLight position={[-3, 1.4, -2.5]} intensity={3} color="#E8793F" />
       <directionalLight position={[0, -1.5, 3]} intensity={0.35} color="#77746E" />
       <spotLight position={[0.5, 4.5, 1.5]} angle={0.6} penumbra={1} intensity={1.4} color="#EAE6DD" />
       <Rig>

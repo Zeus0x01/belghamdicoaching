@@ -5,12 +5,13 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        graphite: "#10100F",
-        obsidian: "#171715",
-        surface: "#20201D",
+        graphite: "#131110",
+        obsidian: "#1C1916",
+        surface: "#26211C",
         bone: "#EAE6DD",
-        copper: "#B97851",
-        "copper-dim": "#8A5A3D",
+        copper: "#E8793F",
+        "copper-dim": "#B45A26",
+        amber: "#D8A84E",
         wgray: "#77746E",
         "wgray-dim": "#4A4844",
       },

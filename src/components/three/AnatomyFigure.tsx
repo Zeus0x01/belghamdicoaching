@@ -149,7 +149,7 @@ const MUSCLE_GEOS: Record<MuscleGroupId, Part[]> = {
 /* ------------------------------------------------------------------ */
 
 const STRUCT_COLOR = "#2b2822";
-const COPPER = "#B97851";
+const COPPER = "#E8793F";
 
 /* ------------------------------------------------------------------ */
 /*  Components                                                         */

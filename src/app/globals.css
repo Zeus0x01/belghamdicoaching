@@ -19,14 +19,14 @@
     width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: #10100f;
+    background: #131110;
   }
   ::-webkit-scrollbar-thumb {
     background: #3a3833;
     border-radius: 6px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #b97851;
+    background: #e8793f;
   }
 
   input,
@@ -38,7 +38,7 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-copper text-graphite font-display font-semibold uppercase tracking-widest text-sm px-8 py-4 transition-all duration-300 ease-cinematic hover:bg-bone hover:-translate-y-0.5;
+    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-r from-copper to-amber bg-[length:200%_100%] text-graphite font-display font-semibold uppercase tracking-widest text-sm px-8 py-4 transition-all duration-300 ease-cinematic hover:bg-right hover:bg-bone hover:-translate-y-0.5;
   }
 
   .btn-secondary {
