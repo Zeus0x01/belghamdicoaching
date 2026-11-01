@@ -15,20 +15,21 @@ export const glowFade = { value: 1 };
 
 /* Deterministic body-part bands in model space (1.8 m figure, feet at y = 0).
    First matching band wins; index matches MUSCLE_IDS order. Bands measured
-   against the actual model proportions (shoulder caps y≈1.30–1.50, pecs
-   y≈1.18–1.40, abs y≈0.98–1.18, thighs y≈0.42–0.90, calves y≈0.12–0.42). */
+   against the actual model proportions (chest 1.24–1.38, abs 0.98–1.24,
+   back 1.02–1.48 with ax<0.19, forearms 0.78–1.06, quads 0.42–0.90,
+   calves 0.14–0.40). */
 const BODY_BANDS: {
   id: number;
   test: (x: number, y: number, z: number, ax: number) => boolean;
 }[] = [
   { id: 1, test: (_x, y, _z, ax) => ax > 0.18 && y > 1.32 && y < 1.5 },
   { id: 4, test: (x, y, _z, ax) => ax > 0.24 && y >= 1.06 && y <= 1.32 && Math.abs(x) < 0.36 },
-  { id: 5, test: (x, y, _z, ax) => ax > 0.24 && y >= 0.8 && y < 1.06 && Math.abs(x) < 0.4 },
-  { id: 3, test: (_x, y, z) => z < -0.045 && y >= 1.02 && y <= 1.52 },
+  { id: 5, test: (x, y, _z, ax) => ax > 0.22 && y >= 0.78 && y < 1.06 && Math.abs(x) < 0.42 },
+  { id: 3, test: (_x, y, z, ax) => z < -0.045 && y >= 1.02 && y <= 1.48 && ax < 0.19 },
   { id: 0, test: (_x, y, z, ax) => y >= 1.24 && y <= 1.38 && ax < 0.17 && z > 0.03 },
   { id: 2, test: (x, y, z, ax) => y >= 0.98 && y < 1.24 && ax < 0.17 && z >= -0.02 },
   { id: 6, test: (x, y, z, ax) => y >= 0.42 && y < 0.9 && ax < 0.2 && z > -0.03 },
-  { id: 7, test: (x, y, z, ax) => y >= 0.12 && y < 0.42 && ax < 0.17 },
+  { id: 7, test: (x, y, z, ax) => y >= 0.14 && y < 0.4 && ax < 0.17 },
 ];
 
 /* Yaw the figure turns toward when a group is focused. */
@@ -121,9 +122,9 @@ function createMuscleMaterial(
     color: 0xffffff,
     map: base ? base.map : null,
     normalMap: base ? base.normalMap : null,
-    roughness: 0.5,
+    roughness: 0.62,
     metalness: 0.03,
-    clearcoat: 0.25,
+    clearcoat: 0.08,
     clearcoatRoughness: 0.55,
     side: THREE.FrontSide,
   });
@@ -198,7 +199,7 @@ export function driveMuscleGlow(
   MUSCLE_IDS.forEach((id, i) => {
     const focus = active ?? hover;
     const on = focus === id;
-    const target = (focus ? (on ? 0.8 : 0.02) : 0.16) * fade;
+    const target = (focus ? (on ? 1.5 : 0) : 0.2) * fade;
     glowPow[i].value = THREE.MathUtils.lerp(glowPow[i].value, target, Math.min(delta * 8, 1));
   });
 }
