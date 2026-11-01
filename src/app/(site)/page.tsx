@@ -6,6 +6,7 @@ import { ArrowRight, Download, LineChart, MessagesSquare } from "lucide-react";
 import { Hero } from "@/components/site/Hero";
 import { ProductCard } from "@/components/site/ProductCard";
 import { AnatomyExplorer } from "@/components/three/AnatomyExplorer";
+import { ScrollCanvasMount } from "@/components/three/ScrollCanvasMount";
 import { Reveal, SectionHeading } from "@/components/ui/Reveal";
 import { Philosophy, HowItWorks, Testimonials, FinalCTA } from "@/components/site/HomeSections";
 import { TransformationTimeline } from "@/components/site/TransformationTimeline";
@@ -29,6 +30,7 @@ export default function HomePage() {
   return (
     <>
       <>
+        <ScrollCanvasMount />
         <Hero />
 
         <Philosophy />
