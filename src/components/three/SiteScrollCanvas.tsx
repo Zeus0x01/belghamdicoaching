@@ -15,6 +15,7 @@ function Rig({ children }: { children: ReactNode }) {
   const mouse = useRef({ x: 0, y: 0 });
   const op = useRef(0);
   const lastTarget = useRef<"hero" | "explorer" | null>(null);
+  const dockAnchor = useRef<{ tx: number; ty: number; scaleT: number } | null>(null);
   const { scene, camera } = useThree();
 
   useEffect(() => {
@@ -39,8 +40,8 @@ function Rig({ children }: { children: ReactNode }) {
     const rect = box ? box.getBoundingClientRect() : null;
     const inBox =
       !!rect &&
-      rect.top < vh * 0.45 &&
-      rect.bottom > vh * 0.72;
+      rect.top < vh * 0.6 &&
+      rect.bottom > vh * 0.4;
 
     let fadeT = 0;
     let name: "hero" | "explorer" | null = null;
@@ -52,31 +53,44 @@ function Rig({ children }: { children: ReactNode }) {
     if (heroPhase) {
       name = "hero";
       fadeT = 1;
+      // Figure is pinned to the hero anchor; the only motion is mouse parallax.
       tx = HERO_POS.x + mouse.current.x * 0.12;
-      ty = HERO_POS.y - Math.min(scroll * 0.00055, 0.5) + mouse.current.y * 0.02;
+      ty = HERO_POS.y + mouse.current.y * 0.02;
       tiltX = THREE.MathUtils.clamp(mouse.current.y * 0.08, -0.1, 0.1);
     } else if (inBox && rect) {
       name = "explorer";
       fadeT = 1;
-      const persp = camera as THREE.PerspectiveCamera;
-      const dist = camera.position.distanceTo(AIM);
-      const visH = 2 * Math.tan((persp.fov * Math.PI) / 360) * dist;
-      const visW = visH * (vw / vh);
-      const cx = rect.left + rect.width * 0.5;
-      const ndcX = (cx / vw) * 2 - 1;
-      tx = AIM.x + (ndcX * visW) / 2;
-      const bottom = Math.min(rect.bottom, vh * 0.94);
-      const ndcY = -(bottom / vh) * 2 + 1;
-      ty = AIM.y + (ndcY * visH) / 2;
-      // Shrink the figure to fit inside the explorer box.
-      const boxWorldH = (Math.min(rect.height, vh * 0.86) / vh) * visH;
-      scaleT = Math.min(1, boxWorldH / 2.0);
+      // Dock anchor is captured once on engagement, then held fixed — the
+      // figure does not track the scrolling box (mouse/yaw only while docked).
+      if (lastTarget.current !== "explorer" || !dockAnchor.current) {
+        const persp = camera as THREE.PerspectiveCamera;
+        const dist = camera.position.distanceTo(AIM);
+        const visH = 2 * Math.tan((persp.fov * Math.PI) / 360) * dist;
+        const visW = visH * (vw / vh);
+        const cx = rect.left + rect.width * 0.5;
+        const ndcX = (cx / vw) * 2 - 1;
+        tx = AIM.x + (ndcX * visW) / 2;
+        const cy = Math.min(Math.max(rect.top + rect.height * 0.62, vh * 0.2), vh * 0.94);
+        const ndcY = -(cy / vh) * 2 + 1;
+        ty = AIM.y + (ndcY * visH) / 2;
+        // Shrink the figure to fit inside the explorer box.
+        const boxWorldH = (Math.min(rect.height, vh * 0.86) / vh) * visH;
+        scaleT = Math.min(1, boxWorldH / 2.0);
+        dockAnchor.current = { tx, ty, scaleT };
+      } else {
+        tx = dockAnchor.current.tx;
+        ty = dockAnchor.current.ty;
+        scaleT = dockAnchor.current.scaleT;
+      }
     }
+
+    if (name !== "explorer") dockAnchor.current = null;
 
     const g = poseRef.current;
     if (g) {
-      // Snap to the new anchor while invisible so the figure never slides across the page.
-      if (name && name !== lastTarget.current && op.current < 0.06) {
+      // Snap to the new anchor on any zone change so the figure never slides
+      // across the page between the hero and the explorer.
+      if (name && name !== lastTarget.current) {
         g.position.set(tx, ty, 0);
         g.scale.setScalar(scaleT);
       }
