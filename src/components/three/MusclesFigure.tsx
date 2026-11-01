@@ -220,18 +220,14 @@ export function MusclesFigure() {
   const focusRef = useRef<MuscleGroupId | null>(null);
   focusRef.current = active ?? hover;
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     driveMuscleGlow(glowPow, active, hover, delta);
     const g = spin.current;
     if (g) {
-      const t = state.clock.elapsedTime;
-      const scroll =
-        typeof window !== "undefined" ? Math.min(window.scrollY * 0.0011, 0.3) : 0;
+      // No idle spin, no scroll-coupled yaw: rotation follows only the
+      // focused muscle group (hover/selection), otherwise faces front.
       const target = GROUP_YAW[focusRef.current ?? "chest"];
-      const idle = focusRef.current
-        ? 0
-        : Math.sin(t * 0.35) * 0.14 + scroll;
-      g.rotation.y = THREE.MathUtils.damp(g.rotation.y, target + idle, 3, delta);
+      g.rotation.y = THREE.MathUtils.damp(g.rotation.y, target, 3, delta);
     }
   });
 
